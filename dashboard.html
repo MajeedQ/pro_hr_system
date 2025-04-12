@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة المدير - موارد الاحتراف</title>
+  <style>
+    body { font-family: 'Arial'; background: #fefefe; padding: 20px; direction: rtl; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    h2 { text-align: center; }
+    input, button { padding: 5px; margin: 5px; }
+  </style>
+</head>
+<body>
+  <h2>مرحبًا بك في لوحة المدير - مؤسسة الاحتراف الناجح</h2>
+  <div>
+    <h3>إضافة موظف جديد</h3>
+    <input type="text" id="name" placeholder="اسم الموظف">
+    <input type="text" id="job" placeholder="المسمى الوظيفي">
+    <button onclick="addEmployee()">إضافة</button>
+  </div>
+  <table>
+    <thead>
+      <tr><th>#</th><th>الاسم</th><th>الوظيفة</th><th>إجراءات</th></tr>
+    </thead>
+    <tbody id="employeeTable"></tbody>
+  </table>
+  <script>
+    let employees = JSON.parse(localStorage.getItem('employees')) || [
+      { name: "أحمد محمد", job: "مندوب توصيل" },
+      { name: "سارة علي", job: "محاسبة" }
+    ];
+
+    function renderTable() {
+      const tbody = document.getElementById('employeeTable');
+      tbody.innerHTML = '';
+      employees.forEach((emp, i) => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${emp.name}</td>
+            <td>${emp.job}</td>
+            <td><button onclick="deleteEmployee(${i})">حذف</button></td>
+          </tr>
+        `;
+      });
+      localStorage.setItem('employees', JSON.stringify(employees));
+    }
+
+    function addEmployee() {
+      const name = document.getElementById('name').value.trim();
+      const job = document.getElementById('job').value.trim();
+      if (name && job) {
+        employees.push({ name, job });
+        renderTable();
+        document.getElementById('name').value = '';
+        document.getElementById('job').value = '';
+      }
+    }
+
+    function deleteEmployee(i) {
+      employees.splice(i, 1);
+      renderTable();
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
