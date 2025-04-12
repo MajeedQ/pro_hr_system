@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تسجيل الحضور والانصراف</title>
+  <style>
+    body { font-family: 'Arial'; background: #fefefe; padding: 20px; direction: rtl; }
+    h2 { text-align: center; }
+    input, button, select { padding: 5px; margin: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h2>نظام الحضور والانصراف - مؤسسة الاحتراف الناجح</h2>
+  <div>
+    <select id="employee">
+      <option value="">اختر الموظف</option>
+    </select>
+    <button onclick="checkIn()">تسجيل حضور</button>
+    <button onclick="checkOut()">تسجيل انصراف</button>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>التاريخ</th>
+        <th>اسم الموظف</th>
+        <th>وقت الحضور</th>
+        <th>وقت الانصراف</th>
+      </tr>
+    </thead>
+    <tbody id="attendanceTable"></tbody>
+  </table>
+
+<script>
+  const attendance = JSON.parse(localStorage.getItem('attendance')) || [];
+  const employees = JSON.parse(localStorage.getItem('employees')) || [];
+
+  const empSelect = document.getElementById('employee');
+  employees.forEach(emp => {
+    const opt = document.createElement('option');
+    opt.value = emp.name;
+    opt.innerText = emp.name;
+    empSelect.appendChild(opt);
+  });
+
+  function formatDate(date) {
+    return date.toLocaleDateString('ar-SA');
+  }
+
+  function formatTime(date) {
+    return date.toLocaleTimeString('ar-SA');
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('attendanceTable');
+    tbody.innerHTML = '';
+    attendance.forEach((rec, i) => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${rec.date}</td>
+          <td>${rec.name}</td>
+          <td>${rec.in || '-'}</td>
+          <td>${rec.out || '-'}</td>
+        </tr>
+      `;
+    });
+    localStorage.setItem('attendance', JSON.stringify(attendance));
+  }
+
+  function checkIn() {
+    const name = empSelect.value;
+    if (!name) return alert("اختر اسم الموظف");
+    const today = formatDate(new Date());
+    const time = formatTime(new Date());
+    const existing = attendance.find(r => r.date === today && r.name === name);
+    if (existing) {
+      alert("تم تسجيل الحضور مسبقًا لهذا اليوم");
+    } else {
+      attendance.push({ date: today, name, in: time });
+      renderTable();
+    }
+  }
+
+  function checkOut() {
+    const name = empSelect.value;
+    if (!name) return alert("اختر اسم الموظف");
+    const today = formatDate(new Date());
+    const time = formatTime(new Date());
+    const record = attendance.find(r => r.date === today && r.name === name);
+    if (record) {
+      record.out = time;
+      renderTable();
+    } else {
+      alert("يجب تسجيل الحضور أولاً");
+    }
+  }
+
+  renderTable();
+</script>
+</body>
+</html>
